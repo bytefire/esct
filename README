@@ -1,0 +1,39 @@
+Experimental System Call Tracer:
+================================
+
+This is just a proof of concept. As an example it traces `open` syscall
+for specified pid using kprobes mechanism. This can be extended so that
+a userspace program can specify a set of syscalls to trace. The module
+creates two sysfs files.
+
+/sys/kernel/esct/pid: Write a pid to this and all open syscalls made by
+that pid will be traced.
+
+/sys/kernel/esct/trace: Read this file to get trace for the pid
+specified above.
+
+forker.c is a quick demo program which forks, the child runs ls while
+parent pulls the trace from /sys/kernel/esct/trace and writes it to
+/tmp/syscall.trace.
+
+Compiling:
+==========
+
+From the directory containing esct.c and Makefile, run:
+
+make -C /path/to/linux/source M=`pwd`
+
+This will produce esct.ko which you can insmod.
+
+Compile forker with: gcc -Wall -o forker forker.c
+
+First insmod esct.ko then run forker as root.
+
+NOTE:
+=====
+
+Just a note, this is totally experimental, and hacked together over a
+busy weekend. There are improvements that can be made. A key one will
+be for the module to export data using netlink sockets rather than the
+sysfs file. On code level, there might be bugs too as this was done
+in short time.
